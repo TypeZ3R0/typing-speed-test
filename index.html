@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="style.css">
+    <script src="med.js"></script>
+    <title>Test your typing ⌨</title>
+</head>
+
+<body>
+    <header>
+        <h1>Typing test</h1>
+        <ul id="stats" class="hide">
+            <li>WPM: <span id="wpm-count"></span></li>
+            <li>Score: <span id="score-count"></span></li>
+            <li>Time left: <span id="time-left"></span></li>
+        </ul>
+        <button id="start">Start</button>
+    </header>
+    <main>
+        <article id="typed-words"></article>
+        <article id="word"></article>
+        <form action="" id="form">
+            <input type="text" class="hide" id="input">
+        </form>
+    </main>
+
+
+    <script>
+        // Getting the elements
+        const startButton = document.getElementById('start');
+        const stats = document.getElementById('stats');
+        const inputField = document.getElementById('input');
+        const word = document.getElementById('word');
+        const inputForm = document.getElementById('form');
+        const typedWordSection = document.getElementById('typed-words')
+        const wpm = document.getElementById('wpm-count')
+        const scoreCount = document.getElementById('score-count')
+        const timeLeft = document.getElementById('time-left')
+        const splittedMed = med.split(" ");
+
+        const state = {
+            currentWord: '',
+            score: 0,
+            timeElpsed: 0,
+            gameLength: 30, // 30 Seconds
+        }
+
+        // Generating random words
+        function getRandomWords() {
+            return splittedMed[Math.floor(Math.random() * splittedMed.length)];
+        }
+
+        // Showing the word in the document
+        function showWord() {
+            const randomWord = getRandomWords();
+            state.currentWord = randomWord;
+            word.textContent = randomWord;
+        }
+        // Creating the word span
+        function createWordSpan(bgcolor, content) {
+            const span = document.createElement('span');
+            const style = 'background-color: ' + bgcolor + ';';
+            span.setAttribute('style', style);
+            span.setAttribute('class', 'typed-word');
+            span.textContent = content;
+            return span;
+        }
+
+        // Render the stats to the DOM
+        function renderStats() {
+            // Time remaining
+            timeLeft.textContent = state.gameLength - state.timeElpsed;
+            // Score 
+            scoreCount.textContent = state.score;
+            // WPM 
+            wpm.textContent = (state.score / (state.timeElpsed / 60)).toFixed(2);
+        }
+
+        // The timer
+        function startClock() {
+            // For every second
+            setInterval(() => {
+                state.timeElpsed += 1;
+                // Calculate stats
+                renderStats();
+                // Check if the game has ended
+                if (state.timeElpsed === state.gameLength) {
+                    // When the game has ended, alert the WPM
+                    alert("Game over, your WPM is: " + wpm.textContent);
+                    // Reload the page
+                    window.location.reload();
+                }
+            }, 1000)
+        }
+
+        // Click on the start game button 
+        startButton.addEventListener('click', (event) => {
+            event.preventDefault();
+            // Hide the button 
+            startButton.className = 'hide';
+            // Show the stats
+            stats.className = '';
+            // Show the input field auto focused
+            inputField.className = '';
+            inputField.focus();
+            // Show the word
+            showWord();
+            // Start the clock
+            startClock();
+        })
+
+        inputForm.addEventListener('submit', (event) => {
+            event.preventDefault();
+            // Get and store the input
+            const userInput = inputField.value;
+            // Check whether user input is empty
+            if (userInput === '') {
+                return;
+            }
+            // Check if the user input is correct
+            const isCorrect = userInput === state.currentWord;
+            let span;
+            if (isCorrect) {
+                // If correct, add the word to the list with a green BG
+                span = createWordSpan('yellowgreen', userInput);
+                state.score += 1;
+            }
+            else {
+                // If wrong, add the word to the list with red BG
+                span = createWordSpan('red', userInput);
+            }
+            typedWordSection.appendChild(span)
+            // Clear the user input
+            inputField.value = '';
+            // Show the next word
+            showWord();
+            // Render stats
+            startClock();
+        })
+    </script>
+</body>
+
+</html>
